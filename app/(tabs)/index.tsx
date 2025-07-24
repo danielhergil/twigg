@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Play, Clock, Star, TrendingUp, Award, Search, Plus } from 'lucide-react-native';
+import { Play, Clock, Star, TrendingUp, Award, Search, Plus, BookOpen, Target, Zap } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -77,16 +77,21 @@ export default function Dashboard() {
 
   const renderCourseCard = (course: Course) => (
     <TouchableOpacity key={course.id} style={styles.courseCard}>
-      <Image source={{ uri: course.thumbnail }} style={styles.courseThumbnail} />
-      <View style={styles.courseContent}>
-        <View style={styles.courseHeader}>
-          <Text style={styles.courseTitle} numberOfLines={2}>
-            {course.title}
-          </Text>
-          <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(course.difficulty) }]}>
-            <Text style={styles.difficultyText}>{course.difficulty}</Text>
-          </View>
+      <View style={styles.courseThumbnailContainer}>
+        <Image source={{ uri: course.thumbnail }} style={styles.courseThumbnail} />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          style={styles.thumbnailOverlay}
+        />
+        <View style={[styles.difficultyBadge, { backgroundColor: getDifficultyColor(course.difficulty) }]}>
+          <Text style={styles.difficultyText}>{course.difficulty}</Text>
         </View>
+      </View>
+      
+      <View style={styles.courseContent}>
+        <Text style={styles.courseTitle} numberOfLines={2}>
+          {course.title}
+        </Text>
         
         <View style={styles.courseInfo}>
           <View style={styles.infoRow}>
@@ -107,13 +112,21 @@ export default function Dashboard() {
             <Text style={styles.progressPercentage}>{course.progress}%</Text>
           </View>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${course.progress}%` }]} />
+            <LinearGradient
+              colors={['#00d4ff', '#0099cc']}
+              style={[styles.progressFill, { width: `${course.progress}%` }]}
+            />
           </View>
         </View>
 
         <TouchableOpacity style={styles.continueButton}>
-          <Play size={16} color="#ffffff" />
-          <Text style={styles.continueButtonText}>Continuar</Text>
+          <LinearGradient
+            colors={['#00d4ff', '#0099cc']}
+            style={styles.continueButtonGradient}
+          >
+            <Play size={16} color="#ffffff" />
+            <Text style={styles.continueButtonText}>Continuar</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -135,6 +148,7 @@ export default function Dashboard() {
               source={{ uri: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=100' }}
               style={styles.avatar}
             />
+            <View style={styles.onlineIndicator} />
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -142,33 +156,53 @@ export default function Dashboard() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Stats Cards */}
         <View style={styles.statsContainer}>
-          <View style={styles.statsGrid}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.statsScroll}
+          >
             <View style={styles.statCard}>
-              <Award size={24} color="#00d4ff" />
+              <View style={styles.statIconContainer}>
+                <Award size={20} color="#ffffff" />
+              </View>
               <Text style={styles.statNumber}>{stats.coursesCompleted}</Text>
               <Text style={styles.statLabel}>Completados</Text>
             </View>
+            
             <View style={styles.statCard}>
-              <Clock size={24} color="#10b981" />
+              <View style={[styles.statIconContainer, { backgroundColor: '#10b98120' }]}>
+                <Clock size={20} color="#10b981" />
+              </View>
               <Text style={styles.statNumber}>{stats.hoursLearned}h</Text>
               <Text style={styles.statLabel}>Estudiadas</Text>
             </View>
+            
             <View style={styles.statCard}>
-              <TrendingUp size={24} color="#f59e0b" />
+              <View style={[styles.statIconContainer, { backgroundColor: '#f59e0b20' }]}>
+                <TrendingUp size={20} color="#f59e0b" />
+              </View>
               <Text style={styles.statNumber}>{stats.currentStreak}</Text>
               <Text style={styles.statLabel}>Días seguidos</Text>
             </View>
+            
             <View style={styles.statCard}>
-              <Star size={24} color="#ef4444" />
+              <View style={[styles.statIconContainer, { backgroundColor: '#ef444420' }]}>
+                <Star size={20} color="#ef4444" />
+              </View>
               <Text style={styles.statNumber}>{stats.totalPoints}</Text>
               <Text style={styles.statLabel}>Puntos</Text>
             </View>
-          </View>
+          </ScrollView>
         </View>
 
         {/* Continue Learning Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Continuar Aprendiendo</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Continuar Aprendiendo</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
           <Text style={styles.sectionSubtitle}>
             Retoma donde lo dejaste
           </Text>
@@ -184,13 +218,14 @@ export default function Dashboard() {
           <View style={styles.quickActions}>
             <TouchableOpacity style={styles.actionCard}>
               <LinearGradient
-                colors={['#00d4ff', '#0099cc']}
+                colors={['#6366f1', '#8b5cf6']}
                 style={styles.actionGradient}
               >
                 <Search size={24} color="#ffffff" />
                 <Text style={styles.actionText}>Explorar Cursos</Text>
               </LinearGradient>
             </TouchableOpacity>
+            
             <TouchableOpacity style={styles.actionCard}>
               <LinearGradient
                 colors={['#10b981', '#059669']}
@@ -200,6 +235,45 @@ export default function Dashboard() {
                 <Text style={styles.actionText}>Crear Curso</Text>
               </LinearGradient>
             </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.actionCard}>
+              <LinearGradient
+                colors={['#f59e0b', '#d97706']}
+                style={styles.actionGradient}
+              >
+                <Target size={24} color="#ffffff" />
+                <Text style={styles.actionText}>Metas</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Daily Challenge */}
+        <View style={styles.section}>
+          <View style={styles.challengeCard}>
+            <LinearGradient
+              colors={['#8b5cf6', '#7c3aed']}
+              style={styles.challengeGradient}
+            >
+              <View style={styles.challengeContent}>
+                <View style={styles.challengeHeader}>
+                  <Zap size={24} color="#ffffff" />
+                  <Text style={styles.challengeTitle}>Desafío Diario</Text>
+                </View>
+                <Text style={styles.challengeDescription}>
+                  Completa 30 minutos de estudio hoy para ganar 50 puntos extra
+                </Text>
+                <View style={styles.challengeProgress}>
+                  <View style={styles.challengeProgressBar}>
+                    <View style={[styles.challengeProgressFill, { width: '45%' }]} />
+                  </View>
+                  <Text style={styles.challengeProgressText}>15/30 min</Text>
+                </View>
+                <TouchableOpacity style={styles.challengeButton}>
+                  <Text style={styles.challengeButtonText}>Empezar</Text>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
           </View>
         </View>
       </ScrollView>
@@ -232,16 +306,25 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
   },
   avatarContainer: {
+    position: 'relative',
+  },
+  avatar: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    overflow: 'hidden',
     borderWidth: 2,
     borderColor: '#00d4ff',
   },
-  avatar: {
-    width: '100%',
-    height: '100%',
+  onlineIndicator: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#10b981',
+    borderWidth: 2,
+    borderColor: '#1a1a2e',
   },
   content: {
     flex: 1,
@@ -251,43 +334,58 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 30,
   },
-  statsGrid: {
+  statsScroll: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    gap: 16,
   },
   statCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
-    alignItems: 'center',
-    width: (width - 60) / 2,
-    marginBottom: 16,
+    minWidth: 120,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
   },
+  statIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#00d4ff20',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
   statNumber: {
     fontSize: 24,
     fontWeight: '700',
     color: '#1e293b',
-    marginTop: 8,
+    marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
     color: '#64748b',
-    marginTop: 4,
   },
   section: {
     marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1e293b',
-    marginBottom: 4,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: '#00d4ff',
+    fontWeight: '500',
   },
   sectionSubtitle: {
     fontSize: 14,
@@ -307,35 +405,42 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  courseThumbnailContainer: {
+    position: 'relative',
+  },
   courseThumbnail: {
     width: '100%',
-    height: 120,
+    height: 140,
   },
-  courseContent: {
-    padding: 16,
-  },
-  courseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  courseTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
-    flex: 1,
-    marginRight: 12,
+  thumbnailOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
   },
   difficultyBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    zIndex: 1,
   },
   difficultyText: {
     fontSize: 10,
     fontWeight: '600',
     color: '#ffffff',
+  },
+  courseContent: {
+    padding: 16,
+  },
+  courseTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 12,
   },
   courseInfo: {
     flexDirection: 'row',
@@ -376,16 +481,17 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#00d4ff',
     borderRadius: 3,
   },
   continueButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  continueButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#00d4ff',
     paddingVertical: 12,
-    borderRadius: 12,
     gap: 8,
   },
   continueButtonText: {
@@ -395,20 +501,86 @@ const styles = StyleSheet.create({
   },
   quickActions: {
     flexDirection: 'row',
-    gap: 16,
+    gap: 12,
   },
   actionCard: {
     flex: 1,
     borderRadius: 16,
     overflow: 'hidden',
+    minHeight: 100,
   },
   actionGradient: {
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
+    height: '100%',
   },
   actionText: {
     color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  challengeCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  challengeGradient: {
+    padding: 20,
+  },
+  challengeContent: {
+    gap: 12,
+  },
+  challengeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  challengeTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  challengeDescription: {
+    fontSize: 14,
+    color: '#e9d5ff',
+    lineHeight: 20,
+  },
+  challengeProgress: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  challengeProgressBar: {
+    flex: 1,
+    height: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  challengeProgressFill: {
+    height: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 3,
+  },
+  challengeProgressText: {
+    fontSize: 12,
+    color: '#ffffff',
+    fontWeight: '500',
+    minWidth: 60,
+  },
+  challengeButton: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingVertical: 10,
+    alignItems: 'center',
+    marginTop: 8,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 20,
+  },
+  challengeButtonText: {
+    color: '#7c3aed',
     fontSize: 14,
     fontWeight: '600',
   },

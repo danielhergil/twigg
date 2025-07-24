@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Star, Clock, Users } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface CourseCardProps {
   course: {
@@ -33,28 +34,34 @@ export default function CourseCard({ course, onPress }: CourseCardProps) {
 
   return (
     <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Image source={{ uri: course.thumbnail }} style={styles.thumbnail} />
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title} numberOfLines={2}>
-            {course.title}
-          </Text>
-          <View style={[styles.levelBadge, { backgroundColor: getLevelColor(course.level) }]}>
-            <Text style={styles.levelText}>{course.level}</Text>
-          </View>
+      <View style={styles.thumbnailContainer}>
+        <Image source={{ uri: course.thumbnail }} style={styles.thumbnail} />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          style={styles.thumbnailOverlay}
+        />
+        <View style={[styles.levelBadge, { backgroundColor: getLevelColor(course.level) }]}>
+          <Text style={styles.levelText}>{course.level}</Text>
         </View>
-        
-        <Text style={styles.description} numberOfLines={2}>
-          {course.description}
+      </View>
+      
+      <View style={styles.content}>
+        <Text style={styles.title} numberOfLines={2}>
+          {course.title}
         </Text>
         
         <Text style={styles.instructor}>Por {course.instructor}</Text>
+        
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.description} numberOfLines={2}>
+            {course.description}
+          </Text>
+        </View>
         
         <View style={styles.stats}>
           <View style={styles.statItem}>
             <Star size={14} color="#fbbf24" />
             <Text style={styles.statText}>{course.rating}</Text>
-            <Text style={styles.statSubtext}>({course.reviews})</Text>
           </View>
           <View style={styles.statItem}>
             <Users size={14} color="#6b7280" />
@@ -75,9 +82,14 @@ export default function CourseCard({ course, onPress }: CourseCardProps) {
         </View>
 
         <TouchableOpacity style={styles.enrollButton}>
-          <Text style={styles.enrollButtonText}>
-            {course.price === 0 ? 'Inscribirse Gratis' : `$${course.price}`}
-          </Text>
+          <LinearGradient
+            colors={['#00d4ff', '#0099cc']}
+            style={styles.enrollButtonGradient}
+          >
+            <Text style={styles.enrollButtonText}>
+              {course.price === 0 ? 'Inscribirse Gratis' : `$${course.price}`}
+            </Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -96,47 +108,56 @@ const styles = StyleSheet.create({
     elevation: 4,
     marginBottom: 16,
   },
+  thumbnailContainer: {
+    position: 'relative',
+  },
   thumbnail: {
     width: '100%',
     height: 140,
   },
-  content: {
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
-    flex: 1,
-    marginRight: 12,
+  thumbnailOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
   },
   levelBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    zIndex: 1,
   },
   levelText: {
     fontSize: 10,
     fontWeight: '600',
     color: '#ffffff',
   },
-  description: {
-    fontSize: 14,
-    color: '#64748b',
-    lineHeight: 20,
-    marginBottom: 8,
+  content: {
+    padding: 16,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 4,
   },
   instructor: {
     fontSize: 12,
     color: '#00d4ff',
     fontWeight: '500',
+    marginBottom: 8,
+  },
+  descriptionContainer: {
     marginBottom: 12,
+  },
+  description: {
+    fontSize: 14,
+    color: '#64748b',
+    lineHeight: 20,
   },
   stats: {
     flexDirection: 'row',
@@ -152,10 +173,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1e293b',
     fontWeight: '500',
-  },
-  statSubtext: {
-    fontSize: 12,
-    color: '#64748b',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -175,8 +192,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   enrollButton: {
-    backgroundColor: '#00d4ff',
     borderRadius: 12,
+    overflow: 'hidden',
+  },
+  enrollButtonGradient: {
     paddingVertical: 12,
     alignItems: 'center',
   },

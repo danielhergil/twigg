@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Search, Filter, Star, Clock, Users, Plus } from 'lucide-react-native';
+import { Search, Filter, Star, Clock, Users, Plus, BookOpen, TrendingUp, Zap } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
@@ -85,6 +85,36 @@ export default function CoursesScreen() {
       thumbnail: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=400',
       tags: ['UX', 'UI', 'Figma', 'Design'],
     },
+    {
+      id: '4',
+      title: 'Marketing Digital 2025',
+      description: 'Estrategias avanzadas de marketing digital para el próximo año',
+      instructor: 'Miguel Torres',
+      rating: 4.7,
+      reviews: 312,
+      students: 1420,
+      duration: '6 semanas',
+      level: 'Intermedio',
+      category: 'Marketing',
+      price: 0,
+      thumbnail: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=400',
+      tags: ['Marketing', 'SEO', 'Redes Sociales'],
+    },
+    {
+      id: '5',
+      title: 'Finanzas Personales',
+      description: 'Aprende a gestionar tus finanzas y crear riqueza a largo plazo',
+      instructor: 'Sofía López',
+      rating: 4.9,
+      reviews: 267,
+      students: 980,
+      duration: '5 semanas',
+      level: 'Básico',
+      category: 'Negocios',
+      price: 0,
+      thumbnail: 'https://images.pexels.com/photos/6646917/pexels-photo-6646917.jpeg?auto=compress&cs=tinysrgb&w=400',
+      tags: ['Finanzas', 'Inversiones', 'Ahorro'],
+    },
   ]);
 
   const getLevelColor = (level: string) => {
@@ -108,28 +138,34 @@ export default function CoursesScreen() {
 
   const renderCourseCard = (course: Course) => (
     <TouchableOpacity key={course.id} style={styles.courseCard}>
-      <Image source={{ uri: course.thumbnail }} style={styles.courseThumbnail} />
-      <View style={styles.courseContent}>
-        <View style={styles.courseHeader}>
-          <Text style={styles.courseTitle} numberOfLines={2}>
-            {course.title}
-          </Text>
-          <View style={[styles.levelBadge, { backgroundColor: getLevelColor(course.level) }]}>
-            <Text style={styles.levelText}>{course.level}</Text>
-          </View>
+      <View style={styles.courseThumbnailContainer}>
+        <Image source={{ uri: course.thumbnail }} style={styles.courseThumbnail} />
+        <LinearGradient
+          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          style={styles.thumbnailOverlay}
+        />
+        <View style={[styles.levelBadge, { backgroundColor: getLevelColor(course.level) }]}>
+          <Text style={styles.levelText}>{course.level}</Text>
         </View>
-        
-        <Text style={styles.courseDescription} numberOfLines={2}>
-          {course.description}
+      </View>
+      
+      <View style={styles.courseContent}>
+        <Text style={styles.courseTitle} numberOfLines={2}>
+          {course.title}
         </Text>
         
         <Text style={styles.instructor}>Por {course.instructor}</Text>
+        
+        <View style={styles.courseDescriptionContainer}>
+          <Text style={styles.courseDescription} numberOfLines={2}>
+            {course.description}
+          </Text>
+        </View>
         
         <View style={styles.courseStats}>
           <View style={styles.statItem}>
             <Star size={14} color="#fbbf24" />
             <Text style={styles.statText}>{course.rating}</Text>
-            <Text style={styles.statSubtext}>({course.reviews})</Text>
           </View>
           <View style={styles.statItem}>
             <Users size={14} color="#6b7280" />
@@ -150,7 +186,12 @@ export default function CoursesScreen() {
         </View>
 
         <TouchableOpacity style={styles.enrollButton}>
-          <Text style={styles.enrollButtonText}>Inscribirse Gratis</Text>
+          <LinearGradient
+            colors={['#00d4ff', '#0099cc']}
+            style={styles.enrollButtonGradient}
+          >
+            <Text style={styles.enrollButtonText}>Inscribirse Gratis</Text>
+          </LinearGradient>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -183,6 +224,49 @@ export default function CoursesScreen() {
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Featured Section */}
+        <View style={styles.featuredSection}>
+          <Text style={styles.sectionTitle}>Destacados</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            style={styles.featuredScroll}
+          >
+            <TouchableOpacity style={styles.featuredCard}>
+              <LinearGradient
+                colors={['#8b5cf6', '#7c3aed']}
+                style={styles.featuredGradient}
+              >
+                <Zap size={24} color="#ffffff" />
+                <Text style={styles.featuredTitle}>IA Generativa</Text>
+                <Text style={styles.featuredSubtitle}>12 cursos nuevos</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.featuredCard}>
+              <LinearGradient
+                colors={['#10b981', '#059669']}
+                style={styles.featuredGradient}
+              >
+                <TrendingUp size={24} color="#ffffff" />
+                <Text style={styles.featuredTitle}>Negocios</Text>
+                <Text style={styles.featuredSubtitle}>8 cursos nuevos</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity style={styles.featuredCard}>
+              <LinearGradient
+                colors={['#f59e0b', '#d97706']}
+                style={styles.featuredGradient}
+              >
+                <BookOpen size={24} color="#ffffff" />
+                <Text style={styles.featuredTitle}>Desarrollo</Text>
+                <Text style={styles.featuredSubtitle}>15 cursos nuevos</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
         {/* Create Course Button */}
         <TouchableOpacity style={styles.createCourseButton}>
           <LinearGradient
@@ -247,9 +331,14 @@ export default function CoursesScreen() {
 
         {/* Results */}
         <View style={styles.resultsSection}>
-          <Text style={styles.resultsTitle}>
-            {filteredCourses.length} cursos encontrados
-          </Text>
+          <View style={styles.resultsHeader}>
+            <Text style={styles.resultsTitle}>
+              {filteredCourses.length} cursos encontrados
+            </Text>
+            <TouchableOpacity>
+              <Text style={styles.sortText}>Ordenar por</Text>
+            </TouchableOpacity>
+          </View>
           
           <View style={styles.coursesGrid}>
             {filteredCourses.map(renderCourseCard)}
@@ -310,8 +399,41 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  createCourseButton: {
+  featuredSection: {
     marginTop: 20,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 16,
+  },
+  featuredScroll: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  featuredCard: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    width: 160,
+  },
+  featuredGradient: {
+    padding: 16,
+    height: 100,
+    justifyContent: 'center',
+    gap: 8,
+  },
+  featuredTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#ffffff',
+  },
+  featuredSubtitle: {
+    fontSize: 12,
+    color: '#e9d5ff',
+  },
+  createCourseButton: {
     marginBottom: 24,
     borderRadius: 16,
     overflow: 'hidden',
@@ -371,11 +493,21 @@ const styles = StyleSheet.create({
   resultsSection: {
     marginBottom: 32,
   },
+  resultsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   resultsTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1e293b',
-    marginBottom: 16,
+  },
+  sortText: {
+    fontSize: 14,
+    color: '#00d4ff',
+    fontWeight: '500',
   },
   coursesGrid: {
     gap: 16,
@@ -390,47 +522,56 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  courseThumbnailContainer: {
+    position: 'relative',
+  },
   courseThumbnail: {
     width: '100%',
     height: 140,
   },
-  courseContent: {
-    padding: 16,
-  },
-  courseHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  courseTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1e293b',
-    flex: 1,
-    marginRight: 12,
+  thumbnailOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
   },
   levelBadge: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
+    zIndex: 1,
   },
   levelText: {
     fontSize: 10,
     fontWeight: '600',
     color: '#ffffff',
   },
-  courseDescription: {
-    fontSize: 14,
-    color: '#64748b',
-    lineHeight: 20,
-    marginBottom: 8,
+  courseContent: {
+    padding: 16,
+  },
+  courseTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: 4,
   },
   instructor: {
     fontSize: 12,
     color: '#00d4ff',
     fontWeight: '500',
+    marginBottom: 8,
+  },
+  courseDescriptionContainer: {
     marginBottom: 12,
+  },
+  courseDescription: {
+    fontSize: 14,
+    color: '#64748b',
+    lineHeight: 20,
   },
   courseStats: {
     flexDirection: 'row',
@@ -446,10 +587,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#1e293b',
     fontWeight: '500',
-  },
-  statSubtext: {
-    fontSize: 12,
-    color: '#64748b',
   },
   tagsContainer: {
     flexDirection: 'row',
@@ -469,8 +606,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   enrollButton: {
-    backgroundColor: '#00d4ff',
     borderRadius: 12,
+    overflow: 'hidden',
+  },
+  enrollButtonGradient: {
     paddingVertical: 12,
     alignItems: 'center',
   },

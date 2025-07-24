@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Settings, CreditCard as Edit3, Award, BookOpen, Clock, Star, Users, Trophy, Target, Calendar } from 'lucide-react-native';
+import { Settings, CreditCard as Edit3, Award, BookOpen, Clock, Star, Users, Trophy, Target, Calendar, Zap, TrendingUp, Crown } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
@@ -87,6 +87,21 @@ export default function ProfileScreen() {
       icon: '🏆',
       earned: false,
     },
+    {
+      id: '5',
+      title: 'Velocidad de Luz',
+      description: 'Completa un curso en menos de una semana',
+      icon: '⚡',
+      earned: true,
+      date: 'Mayo 2024'
+    },
+    {
+      id: '6',
+      title: 'Perfeccionista',
+      description: 'Obtén 100% en 5 evaluaciones',
+      icon: '💯',
+      earned: false,
+    },
   ]);
 
   const [courses] = useState<Course[]>([
@@ -113,15 +128,25 @@ export default function ProfileScreen() {
       rating: 4.8,
       students: 234,
     },
+    {
+      id: '4',
+      title: 'Diseño de Interfaces',
+      progress: 100,
+      status: 'completed',
+      thumbnail: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=300',
+    },
   ]);
 
   const filteredCourses = courses.filter(course => course.status === activeTab);
 
-  const renderStatCard = (icon: React.ReactNode, value: string | number, label: string, color: string) => (
+  const renderStatCard = (icon: React.ReactNode, value: string | number, label: string, color: string, gradient?: [string, string]) => (
     <View style={styles.statCard}>
-      <View style={[styles.statIcon, { backgroundColor: color + '20' }]}>
+      <LinearGradient
+        colors={gradient || [color + '20', color + '10']}
+        style={[styles.statIcon, { backgroundColor: color + '20' }]}
+      >
         {icon}
-      </View>
+      </LinearGradient>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
@@ -129,14 +154,22 @@ export default function ProfileScreen() {
 
   const renderCourseCard = (course: Course) => (
     <TouchableOpacity key={course.id} style={styles.courseCard}>
-      <Image source={{ uri: course.thumbnail }} style={styles.courseImage} />
+      <View style={styles.courseImageContainer}>
+        <Image source={{ uri: course.thumbnail }} style={styles.courseImage} />
+        {course.status === 'completed' && (
+          <View style={styles.completedBadge}>
+            <Award size={16} color="#ffffff" />
+          </View>
+        )}
+      </View>
+      
       <View style={styles.courseInfo}>
         <Text style={styles.courseTitle} numberOfLines={2}>
           {course.title}
         </Text>
         
         {course.status === 'completed' && (
-          <View style={styles.completedBadge}>
+          <View style={styles.statusBadge}>
             <Award size={14} color="#10b981" />
             <Text style={styles.completedText}>Completado</Text>
           </View>
@@ -145,7 +178,10 @@ export default function ProfileScreen() {
         {course.status === 'in-progress' && (
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: `${course.progress}%` }]} />
+              <LinearGradient
+                colors={['#00d4ff', '#0099cc']}
+                style={[styles.progressFill, { width: `${course.progress}%` }]}
+              />
             </View>
             <Text style={styles.progressText}>{course.progress}%</Text>
           </View>
@@ -189,7 +225,14 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
             
-            <Text style={styles.userName}>{userProfile.name}</Text>
+            <View style={styles.userHeader}>
+              <Text style={styles.userName}>{userProfile.name}</Text>
+              <View style={styles.levelBadge}>
+                <Crown size={14} color="#fbbf24" />
+                <Text style={styles.levelText}>Nivel {userProfile.stats.level}</Text>
+              </View>
+            </View>
+            
             <Text style={styles.userEmail}>{userProfile.email}</Text>
             <Text style={styles.userBio}>{userProfile.bio}</Text>
             
@@ -204,37 +247,65 @@ export default function ProfileScreen() {
 
         {/* Stats Grid */}
         <View style={styles.statsSection}>
-          <View style={styles.statsGrid}>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.statsScroll}
+          >
             {renderStatCard(
-              <Trophy size={20} color="#f59e0b" />,
+              <Trophy size={20} color="#ffffff" />,
               userProfile.stats.level,
               'Nivel',
-              '#f59e0b'
+              '#f59e0b',
+              ['#f59e0b', '#d97706']
             )}
             {renderStatCard(
-              <Target size={20} color="#ef4444" />,
+              <Target size={20} color="#ffffff" />,
               userProfile.stats.totalPoints,
               'Puntos',
-              '#ef4444'
+              '#ef4444',
+              ['#ef4444', '#dc2626']
             )}
             {renderStatCard(
-              <Clock size={20} color="#10b981" />,
+              <Clock size={20} color="#ffffff" />,
               `${userProfile.stats.hoursLearned}h`,
               'Estudiadas',
-              '#10b981'
+              '#10b981',
+              ['#10b981', '#059669']
             )}
             {renderStatCard(
-              <Award size={20} color="#00d4ff" />,
+              <Award size={20} color="#ffffff" />,
               userProfile.stats.coursesCompleted,
               'Completados',
-              '#00d4ff'
+              '#00d4ff',
+              ['#00d4ff', '#0099cc']
             )}
-          </View>
+            {renderStatCard(
+              <Users size={20} color="#ffffff" />,
+              userProfile.stats.totalStudents,
+              'Estudiantes',
+              '#8b5cf6',
+              ['#8b5cf6', '#7c3aed']
+            )}
+            {renderStatCard(
+              <TrendingUp size={20} color="#ffffff" />,
+              userProfile.stats.currentStreak,
+              'Racha',
+              '#f59e0b',
+              ['#f59e0b', '#d97706']
+            )}
+          </ScrollView>
         </View>
 
         {/* Achievements */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Logros</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Logros</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>Ver todos</Text>
+            </TouchableOpacity>
+          </View>
+          
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.achievementsContainer}>
               {achievements.map((achievement) => (
@@ -346,11 +417,30 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 8,
   },
+  userHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
+  },
   userName: {
     fontSize: 24,
     fontWeight: '700',
     color: '#ffffff',
-    marginBottom: 4,
+  },
+  levelBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(251, 191, 36, 0.2)',
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    gap: 4,
+  },
+  levelText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#fbbf24',
   },
   userEmail: {
     fontSize: 16,
@@ -363,6 +453,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
     paddingHorizontal: 20,
+    lineHeight: 20,
   },
   userMeta: {
     alignItems: 'center',
@@ -381,18 +472,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 32,
   },
-  statsGrid: {
+  statsScroll: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12,
+    gap: 16,
   },
   statCard: {
     backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 16,
-    alignItems: 'center',
-    width: (width - 60) / 2,
+    minWidth: 120,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -405,7 +493,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   statValue: {
     fontSize: 20,
@@ -421,11 +509,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginBottom: 32,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
     color: '#1e293b',
-    marginBottom: 16,
+  },
+  seeAllText: {
+    fontSize: 14,
+    color: '#00d4ff',
+    fontWeight: '500',
   },
   achievementsContainer: {
     flexDirection: 'row',
@@ -467,6 +565,7 @@ const styles = StyleSheet.create({
     color: '#64748b',
     textAlign: 'center',
     marginBottom: 8,
+    lineHeight: 16,
   },
   achievementDescriptionLocked: {
     color: '#cbd5e1',
@@ -521,9 +620,20 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  courseImageContainer: {
+    position: 'relative',
+  },
   courseImage: {
     width: 80,
     height: 80,
+  },
+  completedBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#10b981',
+    borderRadius: 12,
+    padding: 4,
   },
   courseInfo: {
     flex: 1,
@@ -536,7 +646,7 @@ const styles = StyleSheet.create({
     color: '#1e293b',
     marginBottom: 8,
   },
-  completedBadge: {
+  statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
@@ -560,7 +670,6 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#00d4ff',
     borderRadius: 2,
   },
   progressText: {

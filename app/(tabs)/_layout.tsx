@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, Search, User, Plus } from 'lucide-react-native';
+import { Chrome as Home, Search, User, Plus, BookOpen } from 'lucide-react-native';
 import { View } from 'react-native';
 
 export default function TabLayout() {
@@ -13,6 +13,13 @@ export default function TabLayout() {
           height: 80,
           paddingBottom: 20,
           paddingTop: 10,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 8,
+          elevation: 4,
         },
         tabBarActiveTintColor: '#00d4ff',
         tabBarInactiveTintColor: '#6b7280',
@@ -24,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: 'Inicio',
           tabBarIcon: ({ size, color }) => (
             <Home size={size} color={color} />
           ),
