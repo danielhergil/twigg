@@ -1,4 +1,4 @@
-// app/(tabs)/explore.tsx
+// app/(tabs)/explore.web.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -18,7 +18,6 @@ import {
   Clock,
   Users,
   Plus,
-  BookOpen,
   TrendingUp,
   Zap,
 } from 'lucide-react-native';
@@ -40,7 +39,7 @@ interface Course {
   tags: string[];
 }
 
-export default function ExploreScreen() {
+export default function ExploreWeb() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedLevel, setSelectedLevel] = useState('Todos');
@@ -52,87 +51,72 @@ export default function ExploreScreen() {
     {
       id: '1',
       title: 'React Native Avanzado',
-      description: 'Aprende técnicas avanzadas de React Native para crear aplicaciones profesionales',
+      description: 'Técnicas avanzadas de React Native para crear apps profesionales',
       instructor: 'Carlos Mendoza',
       rating: 4.8,
       students: 1250,
       duration: '12 semanas',
       level: 'Avanzado',
       category: 'Desarrollo',
-      thumbnail:
-        'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=400',
+      thumbnail: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=400',
       tags: ['React Native', 'Mobile', 'JavaScript'],
     },
     {
       id: '2',
       title: 'Inteligencia Artificial para Principiantes',
-      description: 'Introducción completa al mundo de la IA y Machine Learning',
+      description: 'Introducción al mundo de la IA y Machine Learning',
       instructor: 'Ana Rodríguez',
       rating: 4.6,
       students: 890,
       duration: '8 semanas',
       level: 'Básico',
       category: 'IA',
-      thumbnail:
-        'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=400',
+      thumbnail: 'https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=400',
       tags: ['IA', 'Machine Learning', 'Python'],
     },
     // ...otros cursos
   ]);
 
-  const getLevelColor = (level: string) => {
-    switch (level) {
-      case 'Básico':
-        return '#10b981';
-      case 'Intermedio':
-        return '#f59e0b';
-      case 'Avanzado':
-        return '#ef4444';
-      default:
-        return '#6b7280';
+  const getLevelColor = (l: string) => {
+    switch (l) {
+      case 'Básico':     return '#10b981';
+      case 'Intermedio': return '#f59e0b';
+      case 'Avanzado':   return '#ef4444';
+      default:           return '#6b7280';
     }
   };
 
   const filtered = courses.filter(c => {
     const q = searchQuery.toLowerCase();
-    const matchesText =
+    const matchText =
       c.title.toLowerCase().includes(q) ||
       c.description.toLowerCase().includes(q) ||
       c.tags.some(t => t.toLowerCase().includes(q));
-    const matchesCat = selectedCategory === 'Todos' || c.category === selectedCategory;
-    const matchesLev = selectedLevel === 'Todos' || c.level === selectedLevel;
-    return matchesText && matchesCat && matchesLev;
+    const matchCat = selectedCategory === 'Todos' || c.category === selectedCategory;
+    const matchLev = selectedLevel === 'Todos'   || c.level === selectedLevel;
+    return matchText && matchCat && matchLev;
   });
 
   const renderCard = (c: Course) => (
-    <TouchableOpacity key={c.id} style={styles.courseCard}>
-      <View style={styles.courseThumbnailContainer}>
-        <Image source={{ uri: c.thumbnail }} style={styles.courseThumbnail} />
-        <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.8)']}
-          style={styles.thumbnailOverlay}
-        />
-        <View style={[styles.levelBadge, { backgroundColor: getLevelColor(c.level) }]}>
-          <Text style={styles.levelText}>{c.level}</Text>
-        </View>
+    <View key={c.id} style={styles.courseCard}>
+      <Image source={{ uri: c.thumbnail }} style={styles.courseThumbnail} />
+      <LinearGradient
+        colors={['transparent', 'rgba(0,0,0,0.6)']}
+        style={styles.thumbnailOverlay}
+      />
+      <View style={[styles.levelBadge, { backgroundColor: getLevelColor(c.level) }]}>
+        <Text style={styles.levelText}>{c.level}</Text>
       </View>
       <View style={styles.courseContent}>
-        <Text style={styles.courseTitle} numberOfLines={2}>
-          {c.title}
-        </Text>
-        <Text style={styles.instructor}>Por {c.instructor}</Text>
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Star size={14} color="#fbbf24" />
-            <Text style={styles.statText}>{c.rating}</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Users size={14} color="#6b7280" />
-            <Text style={styles.statText}>{c.students}</Text>
-          </View>
-          <View style={styles.statItem}>
+        <Text style={styles.courseTitle}>{c.title}</Text>
+        <View style={styles.courseInfo}>
+          <View style={styles.infoRow}>
             <Clock size={14} color="#6b7280" />
-            <Text style={styles.statText}>{c.duration}</Text>
+            <Text style={styles.infoText}>{c.duration}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Star size={14} color="#fbbf24" />
+            <Text style={styles.infoText}>{c.rating}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.enrollButton}>
@@ -144,12 +128,11 @@ export default function ExploreScreen() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* HEADER al estilo index.tsx */}
+    <SafeAreaView style={styles.wrapper}>
       <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.header}>
         <Text style={styles.headerTitle}>Explorar Cursos</Text>
         <View style={styles.searchRow}>
@@ -163,16 +146,11 @@ export default function ExploreScreen() {
               onChangeText={setSearchQuery}
             />
           </View>
-          <TouchableOpacity style={styles.filterButton}>
+          <TouchableOpacity style={styles.filterBtn}>
             <Filter size={20} color="#fff" />
           </TouchableOpacity>
         </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.chipsContainer}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chips}>
           {categories.map(cat => (
             <TouchableOpacity
               key={cat}
@@ -214,27 +192,33 @@ export default function ExploreScreen() {
         </ScrollView>
       </LinearGradient>
 
-      {/* LISTADO */}
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {filtered.map(renderCard)}
+      <ScrollView style={styles.container}>
+        <View style={styles.grid}>
+          {filtered.map(renderCard)}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f8fafc' },
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#f8fafc',
+    alignItems: 'center',
+  },
   header: {
-    paddingHorizontal: 20,
-    paddingVertical: 24,
+    width: '100%',
+    maxWidth: 1200,
+    padding: 24,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#fff',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   searchRow: {
     flexDirection: 'row',
@@ -255,16 +239,15 @@ const styles = StyleSheet.create({
     flex: 1,
     color: '#374151',
   },
-  filterButton: {
+  filterBtn: {
     marginLeft: 12,
     backgroundColor: 'rgba(255,255,255,0.3)',
     padding: 10,
     borderRadius: 8,
   },
-  chipsContainer: {
+  chips: {
     flexDirection: 'row',
-    marginBottom: 8,
-    gap: 8,
+    marginBottom: 24,
   },
   chip: {
     backgroundColor: 'rgba(255,255,255,0.3)',
@@ -283,24 +266,30 @@ const styles = StyleSheet.create({
   chipTextActive: {
     fontWeight: '600',
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
+  container: {
+    width: '100%',
+    maxWidth: 1200,
+    paddingHorizontal: 24,
     paddingTop: 16,
+    paddingBottom: 32,
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',  // <-- ya no deja huecos
+    gap: 24,
   },
   courseCard: {
+    flexBasis: '30%',               // <-- ocupa 30% y se envuelve
+    marginRight: '3.333%',          // <-- deja espacio entre columnas
     backgroundColor: '#fff',
     borderRadius: 16,
     overflow: 'hidden',
-    marginBottom: 16,
-    elevation: 4,
-  },
-  courseThumbnailContainer: {
-    position: 'relative',
+    marginBottom: 24,
   },
   courseThumbnail: {
     width: '100%',
-    height: 140,
+    height: 160,
   },
   thumbnailOverlay: {
     position: 'absolute',
@@ -318,9 +307,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   levelText: {
+    color: '#fff',
     fontSize: 10,
     fontWeight: '600',
-    color: '#fff',
   },
   courseContent: {
     padding: 16,
@@ -329,32 +318,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#1e293b',
-    marginBottom: 8,
-  },
-  instructor: {
-    fontSize: 12,
-    color: '#6a11cb',
     marginBottom: 12,
   },
-  statsRow: {
+  courseInfo: {
     flexDirection: 'row',
-    gap: 16,
-    marginBottom: 12,
+    justifyContent: 'space-between',
+    marginBottom: 16,
   },
-  statItem: {
+  infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
-  statText: {
+  infoText: {
     fontSize: 12,
-    color: '#374151',
-    fontWeight: '500',
+    color: '#64748b',
   },
   enrollButton: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginTop: 8,
   },
   enrollButtonGradient: {
     paddingVertical: 12,
