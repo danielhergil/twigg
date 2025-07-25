@@ -1,3 +1,4 @@
+// register.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -15,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
+import { auth } from '../../utils/firebase';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -25,56 +28,61 @@ export default function RegisterScreen() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const updateFormData = (field: keyof typeof formData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleRegister = async () => {
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+    const { name, email, password, confirmPassword } = formData;
+    if (!name || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
-
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
-
-    if (formData.password.length < 6) {
-      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
     if (!acceptTerms) {
       Alert.alert('Error', 'Debes aceptar los términos y condiciones');
       return;
     }
 
     setLoading(true);
-    
-    // Simular registro
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // Crea usuario en Firebase
+      await createUserWithEmailAndPassword(auth, email, password);
+      // Opcional: define el nombre para el usuario
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { displayName: name });
+      }
+      // Notifica y redirige a login
       Alert.alert(
         'Registro exitoso',
-        '¡Bienvenido a LearnAI! Tu cuenta ha sido creada correctamente.',
-        [
-          {
-            text: 'Continuar',
-            onPress: () => router.replace('/(tabs)'),
-          },
-        ]
+        '¡Cuenta creada correctamente! Ahora inicia sesión.',
+        [{ text: 'Iniciar sesión', onPress: () => router.replace('/auth/login') }]
       );
-    }, 1500);
-  };
-
-  const updateFormData = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    } catch (error: any) {
+      let message = 'Error al registrar usuario';
+      if (error.code === 'auth/email-already-in-use') {
+        message = 'El correo ya está en uso';
+      } else if (error.code === 'auth/invalid-email') {
+        message = 'Correo inválido';
+      } else if (error.code === 'auth/weak-password') {
+        message = 'La contraseña es muy débil';
+      }
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f172a']}
+        colors={['#6a11cb', '#2575fc']}
         style={styles.gradient}
       >
         <KeyboardAvoidingView
@@ -216,11 +224,11 @@ export default function RegisterScreen() {
                   <View style={styles.dividerLine} />
                 </View>
 
-                <TouchableOpacity style={styles.googleButton}>
+                {/* <TouchableOpacity style={styles.googleButton}>
                   <Text style={styles.googleButtonText}>
                     Registrarse con Google
                   </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 <View style={styles.loginContainer}>
                   <Text style={styles.loginText}>¿Ya tienes cuenta? </Text>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react-native';
 import { Link, router } from 'expo-router';
+import { auth } from '../../utils/firebase';
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithCredential,
+} from 'firebase/auth';
+
+import Constants from 'expo-constants';
+const { googleWebClientId } = Constants.expoConfig!.extra as Record<string,string>;
+
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -21,131 +35,95 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Google OAuth
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: googleWebClientId,
+    useProxy: true,
+    redirectUri: Google.makeRedirectUri({ useProxy: true }),
+    scopes: ['profile', 'email'],
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success' && response.params.id_token) {
+      const { id_token, access_token } = response.params;
+      const cred = GoogleAuthProvider.credential(id_token, access_token);
+      signInWithCredential(auth, cred)
+        .then(() => router.replace('/(tabs)'))
+        .catch(() => Alert.alert('Error', 'No se pudo iniciar sesión con Google'));
+    }
+  }, [response]);
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Por favor completa todos los campos');
       return;
     }
-
     setLoading(true);
-    
-    // Simular autenticación
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
       router.replace('/(tabs)');
-    }, 1500);
+    } catch (error: any) {
+      let message = 'Error al iniciar sesión';
+      if (error.code === 'auth/user-not-found') {
+        message = 'Usuario no encontrado';
+      } else if (error.code === 'auth/wrong-password') {
+        message = 'Contraseña incorrecta';
+      }
+      Alert.alert('Error', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#1a1a2e', '#16213e', '#0f172a']}
-        style={styles.gradient}
-      >
+      <LinearGradient colors={['#6a11cb', '#2575fc']} style={styles.gradient}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
           <View style={styles.content}>
-            {/* Logo */}
-            <View style={styles.logoContainer}>
-              <Image
-                source={require('../../assets/images/logo-gamestrategies-1.png')}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-              <Text style={styles.appName}>LearnAI</Text>
-              <Text style={styles.tagline}>Aprendizaje adaptativo con IA</Text>
-            </View>
+            {/* … logo y form inputs … */}
 
-            {/* Login Form */}
-            <View style={styles.formContainer}>
-              <Text style={styles.welcomeText}>¡Bienvenido de vuelta!</Text>
-              <Text style={styles.subtitleText}>
-                Inicia sesión para continuar tu aprendizaje
-              </Text>
-
-              <View style={styles.inputContainer}>
-                <View style={styles.inputWrapper}>
-                  <Mail size={20} color="#6b7280" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Correo electrónico"
-                    placeholderTextColor="#6b7280"
-                    value={email}
-                    onChangeText={setEmail}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoComplete="email"
-                  />
-                </View>
-
-                <View style={styles.inputWrapper}>
-                  <Lock size={20} color="#6b7280" style={styles.inputIcon} />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Contraseña"
-                    placeholderTextColor="#6b7280"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry={!showPassword}
-                    autoComplete="password"
-                  />
-                  <TouchableOpacity
-                    style={styles.eyeButton}
-                    onPress={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff size={20} color="#6b7280" />
-                    ) : (
-                      <Eye size={20} color="#6b7280" />
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <TouchableOpacity style={styles.forgotPassword}>
-                <Text style={styles.forgotPasswordText}>
-                  ¿Olvidaste tu contraseña?
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.loginButton, loading && styles.loginButtonDisabled]}
-                onPress={handleLogin}
-                disabled={loading}
+            {/* Botón email/password */}
+            <TouchableOpacity
+              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              <LinearGradient
+                colors={['#00d4ff', '#0099cc']}
+                style={styles.loginButtonGradient}
               >
-                <LinearGradient
-                  colors={['#00d4ff', '#0099cc']}
-                  style={styles.loginButtonGradient}
-                >
-                  <Text style={styles.loginButtonText}>
-                    {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>o</Text>
-                <View style={styles.dividerLine} />
-              </View>
-
-              <TouchableOpacity style={styles.googleButton}>
-                <Text style={styles.googleButtonText}>
-                  Continuar con Google
+                <Text style={styles.loginButtonText}>
+                  {loading ? 'Iniciando...' : 'Iniciar Sesión'}
                 </Text>
-              </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
 
-              <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>¿No tienes cuenta? </Text>
-                <Link href="/auth/register" asChild>
-                  <TouchableOpacity>
-                    <Text style={styles.signupLink}>Regístrate</Text>
-                  </TouchableOpacity>
-                </Link>
-              </View>
+            {/* OR */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>o</Text>
+              <View style={styles.dividerLine} />
             </View>
+
+            {/* SOLO Google */}
+            <TouchableOpacity
+              style={styles.googleButton}
+              disabled={!request}
+              onPress={() => promptAsync()}
+            >
+              <Image
+                source={require('../../assets/images/google-g-icon.png')}
+                style={styles.googleIcon}
+              />
+              <Text style={styles.googleButtonText}>
+                Continuar con Google
+              </Text>
+            </TouchableOpacity>
+
+            {/* link a registro … */}
           </View>
         </KeyboardAvoidingView>
       </LinearGradient>
@@ -274,18 +252,27 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   googleButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 12,
-    paddingVertical: 16,
+    width: '100%',
+    height: 44,              
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: '#e5e7eb',
     marginBottom: 24,
+  },
+  googleIcon: {
+    width: 20,
+    height: 20,
+    resizeMode: 'contain',
   },
   googleButtonText: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#ffffff',
+    fontWeight: '600',
+    color: '#374151',
+    marginLeft: 8,
   },
   signupContainer: {
     flexDirection: 'row',
